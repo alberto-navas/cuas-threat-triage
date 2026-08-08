@@ -1,0 +1,55 @@
+# Escenario de demostracion: un unico activo protegido y los cuatro
+# arquetipos de amenaza simultaneos, para ver como se distinguen entre si
+# en la clasificacion y en la puntuacion de amenaza.
+name: demo_mixed_threats
+description: >
+  Un helipuerto vigilado por un radar unico, con una aproximacion directa
+  (FPV_ATTACK), una orbita de reconocimiento (ISR_LOITER), un dron
+  recreativo sin intencion hostil (COMMERCIAL_WANDER) y un falso positivo
+  de clutter/ave (BIRD_CLUTTER) activos en paralelo.
+duration_s: 90
+timestep_s: 1.0
+random_seed: 42
+
+assets:
+  - asset_id: helipuerto_norte
+    position: { east_m: 0, north_m: 0, up_m: 0 }
+    criticality: 5
+    rings_m: { vigilancia: 3000, aviso: 1000, critico: 300 }
+
+sensors:
+  - sensor_id: radar_1
+    sensor_type: radar
+    position: { east_m: 0, north_m: 0, up_m: 8 }
+    noise_std_m: 20
+    detection_probability: 0.9
+    max_range_m: 6000
+
+threats:
+  - track_id: T-001
+    archetype: fpv_attack
+    spawn_time_s: 0
+    start_position: { east_m: 4000, north_m: 4000, up_m: 80 }
+    target_asset_id: helipuerto_norte
+    speed_mps: 35
+
+  - track_id: T-002
+    archetype: isr_loiter
+    spawn_time_s: 0
+    start_position: { east_m: 1500, north_m: 0, up_m: 150 }
+    target_asset_id: helipuerto_norte
+    speed_mps: 12
+    loiter_radius_m: 1500
+
+  - track_id: T-003
+    archetype: commercial_wander
+    spawn_time_s: 10
+    start_position: { east_m: -2500, north_m: 2000, up_m: 40 }
+    speed_mps: 6
+    heading_volatility_dps: 20
+
+  - track_id: T-004
+    archetype: bird_clutter
+    spawn_time_s: 5
+    start_position: { east_m: 200, north_m: -150, up_m: 15 }
+    speed_mps: 1

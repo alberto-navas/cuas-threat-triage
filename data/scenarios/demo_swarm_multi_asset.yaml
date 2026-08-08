@@ -1,0 +1,69 @@
+# Escenario de demostracion: dos activos protegidos y un enjambre de tres
+# aproximaciones directas simultaneas desde distintos rumbos, repartidas
+# entre los dos activos, mas una orbita de reconocimiento. Pensado para
+# ejercitar la priorizacion multi-activo: varias trazas de alta amenaza
+# compitiendo por atencion al mismo tiempo.
+name: demo_swarm_multi_asset
+description: >
+  Enjambre de tres FPV_ATTACK que llegan casi a la vez desde el norte, el
+  este y el sur, dos de ellos contra el deposito norte y uno contra el
+  puesto de mando sur, mas una orbita ISR_LOITER de fondo.
+duration_s: 60
+timestep_s: 1.0
+random_seed: 7
+
+assets:
+  - asset_id: deposito_norte
+    position: { east_m: 0, north_m: 3000, up_m: 0 }
+    criticality: 4
+    rings_m: { vigilancia: 2500, aviso: 900, critico: 250 }
+
+  - asset_id: puesto_mando_sur
+    position: { east_m: 0, north_m: -1000, up_m: 0 }
+    criticality: 5
+    rings_m: { vigilancia: 2500, aviso: 900, critico: 250 }
+
+sensors:
+  - sensor_id: radar_norte
+    sensor_type: radar
+    position: { east_m: 0, north_m: 3000, up_m: 8 }
+    noise_std_m: 18
+    detection_probability: 0.92
+    max_range_m: 5000
+
+  - sensor_id: radar_sur
+    sensor_type: radar
+    position: { east_m: 0, north_m: -1000, up_m: 8 }
+    noise_std_m: 18
+    detection_probability: 0.92
+    max_range_m: 5000
+
+threats:
+  - track_id: T-101
+    archetype: fpv_attack
+    spawn_time_s: 0
+    start_position: { east_m: -3500, north_m: 4500, up_m: 60 }
+    target_asset_id: deposito_norte
+    speed_mps: 38
+
+  - track_id: T-102
+    archetype: fpv_attack
+    spawn_time_s: 1
+    start_position: { east_m: 3800, north_m: 3600, up_m: 70 }
+    target_asset_id: deposito_norte
+    speed_mps: 40
+
+  - track_id: T-103
+    archetype: fpv_attack
+    spawn_time_s: 0
+    start_position: { east_m: 3200, north_m: -3500, up_m: 55 }
+    target_asset_id: puesto_mando_sur
+    speed_mps: 36
+
+  - track_id: T-104
+    archetype: isr_loiter
+    spawn_time_s: 0
+    start_position: { east_m: -1800, north_m: 3000, up_m: 180 }
+    target_asset_id: deposito_norte
+    speed_mps: 14
+    loiter_radius_m: 1800

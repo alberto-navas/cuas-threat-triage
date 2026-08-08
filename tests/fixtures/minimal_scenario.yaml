@@ -1,0 +1,30 @@
+# Fixture minima y determinista para tests: probabilidad de deteccion 1.0
+# y ruido 0.0 para poder comparar detecciones contra la trayectoria
+# verdadera sin margen de tolerancia.
+name: minimal_test_scenario
+description: Escenario minimo para tests unitarios.
+duration_s: 5
+timestep_s: 1.0
+random_seed: 1
+
+assets:
+  - asset_id: asset_1
+    position: { east_m: 0, north_m: 0, up_m: 0 }
+    criticality: 3
+    rings_m: { critico: 300 }
+
+sensors:
+  - sensor_id: sensor_1
+    sensor_type: radar
+    position: { east_m: 0, north_m: 0, up_m: 0 }
+    noise_std_m: 0.0
+    detection_probability: 1.0
+    max_range_m: 10000
+
+threats:
+  - track_id: T-001
+    archetype: fpv_attack
+    spawn_time_s: 0
+    start_position: { east_m: 1000, north_m: 0, up_m: 50 }
+    target_asset_id: asset_1
+    speed_mps: 20

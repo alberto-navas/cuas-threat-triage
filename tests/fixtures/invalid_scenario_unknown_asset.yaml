@@ -1,0 +1,23 @@
+# Fixture invalida a proposito: T-001 referencia un activo que no existe
+# en la lista de assets, para probar la validacion de Scenario.__post_init__.
+name: invalid_scenario
+description: Escenario invalido para tests de validacion.
+duration_s: 5
+timestep_s: 1.0
+random_seed: 1
+
+assets:
+  - asset_id: asset_1
+    position: { east_m: 0, north_m: 0, up_m: 0 }
+    criticality: 3
+    rings_m: {}
+
+sensors: []
+
+threats:
+  - track_id: T-001
+    archetype: fpv_attack
+    spawn_time_s: 0
+    start_position: { east_m: 1000, north_m: 0, up_m: 50 }
+    target_asset_id: asset_desconocido
+    speed_mps: 20

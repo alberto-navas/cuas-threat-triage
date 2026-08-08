@@ -1,8 +1,17 @@
 """Fixtures compartidas por toda la suite de tests."""
 
+from pathlib import Path
+
 import pytest
 
 from src.model import Position, TrackState, Velocity
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
+@pytest.fixture
+def fixtures_dir() -> Path:
+    return FIXTURES_DIR
 
 
 @pytest.fixture
