@@ -66,6 +66,13 @@ operativo real).
   cada componente — `src/report/`.
 - **CLI** (`src/cli.py`) y **panel web** (`src/web/`, FastAPI) sobre el
   mismo pipeline compartido (`src/pipeline.py`).
+- **Informe y panel en español, inglés y alemán** (`src/report/i18n.py`):
+  cada componente de puntuación guarda su justificación como una plantilla
+  con parámetros, no como texto fijo, para poder re-renderizarla en
+  cualquier idioma sin que `src/scoring/` ni `src/classification/` sepan
+  nada de traducción. Límite deliberado: el nombre de un activo o de un
+  anillo de proximidad es texto que escribió quien definió el escenario,
+  no texto que genera el sistema — viaja igual en los 3 idiomas.
 
 ## Arquitectura
 
@@ -126,6 +133,9 @@ python -m src.cli data/scenarios/*.yaml --output output/
 # Ajustar el tracker (puerta de asociación, confirmación/descarte)
 python -m src.cli data/scenarios/demo_swarm_multi_asset.yaml --gate-distance-m 100 --confirm-hits 2
 
+# Informe en inglés o alemán
+python -m src.cli data/scenarios/demo_mixed_threats.yaml --lang en
+
 # Panel web: elegir o subir un escenario, ver el informe en el navegador
 python -m src.web
 # -> http://127.0.0.1:8000
@@ -142,8 +152,9 @@ criticidad.
 pytest -v
 ```
 
-147 tests cubriendo los diez módulos del pipeline (simulación, tracking,
-clasificación, scoring, decisión, informe, CLI, panel web), usando
+180 tests cubriendo los once módulos del pipeline (simulación, tracking,
+clasificación, scoring, decisión, informe (incluida la traducción ES/EN/DE),
+CLI, panel web), usando
 fixtures sintéticas versionadas en `tests/fixtures/` — ninguno depende de
 descargar nada externo. Se ejecutan automáticamente en cada `push` vía
 GitHub Actions (`.github/workflows/tests.yml`), en Ubuntu y Windows.

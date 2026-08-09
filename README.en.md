@@ -67,6 +67,13 @@ system).
   `src/report/`.
 - **CLI** (`src/cli.py`) and **web panel** (`src/web/`, FastAPI) over the
   same shared pipeline (`src/pipeline.py`).
+- **Report and web panel in Spanish, English, and German**
+  (`src/report/i18n.py`): every scoring component stores its rationale as
+  a template with parameters, not fixed text, so it can be re-rendered in
+  any language without `src/scoring/` or `src/classification/` knowing
+  anything about translation. Deliberate boundary: an asset's name or a
+  proximity ring's name is text the scenario author wrote, not text the
+  system generates — it travels unchanged across all 3 languages.
 
 ## Architecture
 
@@ -127,6 +134,9 @@ python -m src.cli data/scenarios/*.yaml --output output/
 # Tune the tracker (association gate, confirm/drop thresholds)
 python -m src.cli data/scenarios/demo_swarm_multi_asset.yaml --gate-distance-m 100 --confirm-hits 2
 
+# Report in English or German
+python -m src.cli data/scenarios/demo_mixed_threats.yaml --lang en
+
 # Web panel: pick or upload a scenario, view the report in the browser
 python -m src.web
 # -> http://127.0.0.1:8000
@@ -142,8 +152,9 @@ swarm split across two assets of different criticality.
 pytest -v
 ```
 
-147 tests covering all ten pipeline modules (simulation, tracking,
-classification, scoring, decision, report, CLI, web panel), using
+180 tests covering all eleven pipeline modules (simulation, tracking,
+classification, scoring, decision, report — including ES/EN/DE
+localization —, CLI, web panel), using
 synthetic fixtures versioned in `tests/fixtures/` — none of them depend on
 downloading anything external. They run automatically on every `push` via
 GitHub Actions (`.github/workflows/tests.yml`), on Ubuntu and Windows.
