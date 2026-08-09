@@ -6,6 +6,7 @@ uvicorn>=0.29.0           # servidor ASGI para el panel web
 python-multipart>=0.0.9   # subida de ficheros de escenario en el panel web
 slowapi>=0.1.9            # limite de peticiones por IP en el panel web
 httpx>=0.27.0             # cliente HTTP usado por TestClient en los tests de la web (dependencia de desarrollo)
+markupsafe>=2.1.0         # comparar el HTML escapado por jinja2 en los tests del informe (dependencia de desarrollo)
 pytest>=8.0.0             # framework de tests (dependencia de desarrollo)
 pytest-cov>=5.0.0         # cobertura de tests (dependencia de desarrollo)
 ruff>=0.16.0              # lint + formato de codigo (dependencia de desarrollo)
