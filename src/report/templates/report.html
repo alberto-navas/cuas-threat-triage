@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Informe de amenazas — {{ scenario.name }}</title>
+<style>
+  :root {
+    --bg: #eef1f5; --surface: #ffffff; --surface-alt: #f4f6f9;
+    --ink: #101828; --muted: #5d6b82; --border: #dde3ea;
+    --accent: #1b4965;
+    --critical: #c1272d; --high: #d9822b; --medium: #b8960c; --low: #2f855a;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, "Roboto Mono", monospace;
+    --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0f14; --surface: #131a22; --surface-alt: #0f151c;
+      --ink: #e6ebf0; --muted: #93a1b4; --border: #263241;
+      --accent: #6fb3d9;
+      --critical: #ff6b6b; --high: #f0a34e; --medium: #e0c25e; --low: #55c98a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b0f14; --surface: #131a22; --surface-alt: #0f151c;
+    --ink: #e6ebf0; --muted: #93a1b4; --border: #263241;
+    --accent: #6fb3d9;
+    --critical: #ff6b6b; --high: #f0a34e; --medium: #e0c25e; --low: #55c98a;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f5; --surface: #ffffff; --surface-alt: #f4f6f9;
+    --ink: #101828; --muted: #5d6b82; --border: #dde3ea;
+    --accent: #1b4965;
+    --critical: #c1272d; --high: #d9822b; --medium: #b8960c; --low: #2f855a;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 2.5rem 1.25rem; background: var(--bg); color: var(--ink); font-family: var(--font-sans); }
+  .page { max-width: 980px; margin: 0 auto; }
+
+  h1 { margin: 0 0 0.35rem 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 1.15rem; margin: 2.25rem 0 0.9rem 0; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+  .meta { color: var(--muted); margin: 0 0 1.5rem 0; font-size: 0.92rem; }
+  .meta code { font-family: var(--font-mono); background: var(--surface-alt); padding: 0.1rem 0.35rem; border-radius: 3px; }
+  .description { color: var(--muted); font-size: 0.95rem; max-width: 70ch; }
+
+  .tag { display: inline-flex; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.25rem 0.6rem; border-radius: 4px; border: 1px solid; white-space: nowrap; }
+  .tag-critical { color: var(--critical); border-color: var(--critical); background: color-mix(in srgb, var(--critical) 12%, transparent); }
+  .tag-high     { color: var(--high);     border-color: var(--high);     background: color-mix(in srgb, var(--high) 12%, transparent); }
+  .tag-medium   { color: var(--medium);   border-color: var(--medium);   background: color-mix(in srgb, var(--medium) 12%, transparent); }
+  .tag-low      { color: var(--low);      border-color: var(--low);      background: color-mix(in srgb, var(--low) 12%, transparent); }
+
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  th, td { padding: 0.6rem 0.8rem; text-align: left; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface-alt); }
+  tr:last-child td { border-bottom: none; }
+  td.score { font-family: var(--font-mono); font-weight: 700; }
+  td.rank { font-family: var(--font-mono); color: var(--muted); }
+
+  .map-container { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; }
+
+  .detail-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.9rem; }
+  .detail-card h3 { margin: 0 0 0.7rem 0; font-size: 1rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  .detail-card .score { font-family: var(--font-mono); color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+  .components { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+  .components li { font-size: 0.88rem; padding-left: 0.9rem; border-left: 3px solid var(--border); }
+  .components .component-name { font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em; color: var(--accent); }
+  .components .component-value { font-family: var(--font-mono); color: var(--muted); }
+  .components .component-rationale { display: block; color: var(--muted); margin-top: 0.1rem; }
+
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>{{ scenario.name }}</h1>
+  <p class="meta">
+    Generado {{ generated_at }} ·
+    Duración simulada <code>{{ scenario.duration_s | int }} s</code> ·
+    Paso <code>{{ scenario.timestep_s }} s</code> ·
+    {{ scenario.assets | length }} activo(s) protegido(s) ·
+    {{ priority | length }} traza(s) activa(s) evaluada(s)
+  </p>
+  {% if scenario.description %}<p class="description">{{ scenario.description }}</p>{% endif %}
+</header>
+
+<h2>Mapa táctico</h2>
+<div class="map-container">
+{{ map_html | safe }}
+</div>
+
+<h2>Prioridad de respuesta</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th><th>Traza</th><th>Activo amenazado</th><th>Puntuación</th><th>Nivel</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in priority %}
+    <tr>
+      <td class="rank">{{ entry.rank }}</td>
+      <td><code>{{ entry.score.track_id }}</code></td>
+      <td>{{ entry.score.asset_id }}</td>
+      <td class="score">{{ "%.1f" | format(entry.score.total) }}/100</td>
+      <td><span class="tag tag-{{ entry.score.tier.value }}">{{ entry.score.tier.value }}</span></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Desglose por traza</h2>
+{% for entry in priority %}
+<div class="detail-card">
+  <h3>
+    #{{ entry.rank }} — <code>{{ entry.score.track_id }}</code> → {{ entry.score.asset_id }}
+    <span class="tag tag-{{ entry.score.tier.value }}">{{ entry.score.tier.value }}</span>
+    <span class="score">{{ "%.1f" | format(entry.score.total) }}/100</span>
+  </h3>
+  <ul class="components">
+    {% for component in entry.score.components %}
+    <li>
+      <span class="component-name">{{ component.name }}</span>
+      <span class="component-value">{{ "%.0f" | format(component.value) }}/100</span>
+      <span class="component-rationale">{{ component.rationale }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endfor %}
+
+<footer>
+  Datos sintéticos generados por simulación — ningún dato procede de sensores reales.
+  Esta es la capa de detección → seguimiento → clasificación → decisión: una herramienta
+  de apoyo a la decisión, no de neutralización. Ver el README del proyecto para el alcance
+  completo y sus límites éticos.
+</footer>
+
+</div>
+</body>
+</html>
