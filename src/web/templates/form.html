@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>C-UAS Threat Triage</title>
+<style>
+  :root {
+    --bg: #eef1f5; --surface: #ffffff; --surface-alt: #f4f6f9;
+    --ink: #101828; --muted: #5d6b82; --border: #dde3ea;
+    --accent: #1b4965;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, "Roboto Mono", monospace;
+    --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0f14; --surface: #131a22; --surface-alt: #0f151c;
+      --ink: #e6ebf0; --muted: #93a1b4; --border: #263241;
+      --accent: #6fb3d9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b0f14; --surface: #131a22; --surface-alt: #0f151c;
+    --ink: #e6ebf0; --muted: #93a1b4; --border: #263241;
+    --accent: #6fb3d9;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f5; --surface: #ffffff; --surface-alt: #f4f6f9;
+    --ink: #101828; --muted: #5d6b82; --border: #dde3ea;
+    --accent: #1b4965;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 2.5rem 1.25rem; background: var(--bg); color: var(--ink); font-family: var(--font-sans); }
+  .page { max-width: 640px; margin: 0 auto; }
+
+  h1 { margin: 0 0 0.35rem 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
+  .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0 0 2rem 0; max-width: 60ch; }
+
+  form { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
+  fieldset { border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.1rem; margin: 0 0 1.25rem 0; }
+  legend { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 0 0.4rem; }
+
+  .option { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.2rem; border-bottom: 1px solid var(--border); }
+  .option:last-child { border-bottom: none; }
+  .option input[type="radio"] { margin-top: 0.3rem; }
+  .option label { cursor: pointer; }
+  .option .option-name { font-weight: 600; }
+  .option .option-desc { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 0.15rem; }
+
+  .separator { text-align: center; color: var(--muted); font-size: 0.8rem; font-family: var(--font-mono); margin: -0.4rem 0 1.25rem 0; }
+
+  input[type="file"] { width: 100%; font-size: 0.9rem; }
+
+  button { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.4rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  button:hover { opacity: 0.9; }
+
+  footer { margin-top: 2rem; color: var(--muted); font-size: 0.8rem; max-width: 60ch; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>C-UAS Threat Triage</h1>
+<p class="subtitle">
+  Simula un escenario de detección antidrones y genera el informe de
+  priorización de amenazas: seguimiento, clasificación por firma
+  cinemática y puntuación explicable por traza.
+</p>
+
+<form action="/run" method="post" enctype="multipart/form-data">
+  <fieldset>
+    <legend>Escenario de demostración</legend>
+    {% for scenario in demo_scenarios %}
+    <div class="option">
+      <input type="radio" name="demo_scenario" value="{{ scenario.filename }}" id="demo-{{ loop.index }}"
+             {% if loop.first %}checked{% endif %}>
+      <label for="demo-{{ loop.index }}">
+        <span class="option-name">{{ scenario.name }}</span>
+        <span class="option-desc">{{ scenario.description }}</span>
+      </label>
+    </div>
+    {% endfor %}
+  </fieldset>
+
+  <p class="separator">— o sube tu propio escenario —</p>
+
+  <fieldset>
+    <legend>Escenario YAML propio</legend>
+    <input type="file" name="scenario_file" accept=".yaml,.yml">
+  </fieldset>
+
+  <button type="submit">Generar informe</button>
+</form>
+
+<footer>
+  Todos los escenarios son simulaciones sintéticas: ningún dato procede de
+  sensores reales, y esto es un replay, no una conexión en vivo a hardware.
+  Ver el README del proyecto para el alcance completo y sus límites éticos.
+</footer>
+
+</div>
+</body>
+</html>

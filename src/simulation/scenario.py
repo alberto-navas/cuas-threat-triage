@@ -166,13 +166,15 @@ def _parse_threat(raw: dict) -> ThreatSpec:
     )
 
 
-def load_scenario(path: str | Path) -> Scenario:
-    """Carga y valida un escenario desde un fichero YAML. Las referencias
-    cruzadas (p.ej. una amenaza que apunta a un activo inexistente) y las
-    demas invariantes se comprueban en `Scenario.__post_init__`, asi que
-    valen tanto para escenarios cargados desde YAML como construidos a
-    mano en tests."""
-    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+def parse_scenario_yaml(text: str) -> Scenario:
+    """Parsea y valida un escenario a partir de texto YAML ya en memoria
+    (sin tocar disco) -- lo que permite validar un YAML subido por HTTP
+    (src/web/app.py) sin necesidad de escribirlo primero a un fichero
+    temporal. Las referencias cruzadas (p.ej. una amenaza que apunta a un
+    activo inexistente) y las demas invariantes se comprueban en
+    `Scenario.__post_init__`, asi que valen tanto para escenarios cargados
+    desde YAML como construidos a mano en tests."""
+    raw = yaml.safe_load(text)
 
     return Scenario(
         name=raw["name"],
@@ -184,3 +186,8 @@ def load_scenario(path: str | Path) -> Scenario:
         sensors=tuple(_parse_sensor(s) for s in raw["sensors"]),
         threats=tuple(_parse_threat(t) for t in raw["threats"]),
     )
+
+
+def load_scenario(path: str | Path) -> Scenario:
+    """Carga y valida un escenario desde un fichero YAML en disco."""
+    return parse_scenario_yaml(Path(path).read_text(encoding="utf-8"))

@@ -13,6 +13,7 @@ from src.simulation.scenario import (
     ThreatArchetype,
     ThreatSpec,
     load_scenario,
+    parse_scenario_yaml,
 )
 
 
@@ -27,6 +28,15 @@ def test_load_scenario_parses_assets_sensors_and_threats(fixtures_dir):
     assert len(scenario.threats) == 1
     assert scenario.threats[0].archetype == ThreatArchetype.FPV_ATTACK
     assert scenario.threats[0].target_asset_id == "asset_1"
+
+
+def test_parse_scenario_yaml_matches_load_scenario_from_the_same_text(fixtures_dir):
+    text = (fixtures_dir / "minimal_scenario.yaml").read_text(encoding="utf-8")
+
+    scenario = parse_scenario_yaml(text)
+
+    assert scenario.name == "minimal_test_scenario"
+    assert scenario.assets[0].asset_id == "asset_1"
 
 
 def test_load_scenario_rejects_unknown_target_asset(fixtures_dir):
