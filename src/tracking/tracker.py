@@ -36,7 +36,17 @@ class MultiTargetTracker:
     distintas que pasen cerca. `confirm_hits`/`drop_misses` controlan la
     velocidad de confirmacion/descarte: valores mas altos son mas
     resistentes a detecciones espurias pero tardan mas en confirmar una
-    amenaza real."""
+    amenaza real.
+
+    `beta` (ganancia de velocidad) se dejo deliberadamente bajo por defecto:
+    con el `beta` mas reactivo que se probo primero (0.2), el ruido de
+    posicion del sensor se colaba en la velocidad estimada lo bastante como
+    para que hasta una trayectoria perfectamente recta pareciera errante
+    para la clasificacion cinematica (src/classification/kinematic_signature.py).
+    Ninguno de los arquetipos de amenaza simulados acelera de forma
+    brusca, asi que no hay maniobra real que este filtro mas suave vaya a
+    perderse; si en el futuro se simulan maniobras evasivas, este valor
+    merece revisarse."""
 
     def __init__(
         self,
@@ -44,7 +54,7 @@ class MultiTargetTracker:
         confirm_hits: int = 3,
         drop_misses: int = 3,
         alpha: float = 0.6,
-        beta: float = 0.2,
+        beta: float = 0.05,
     ) -> None:
         self.gate_distance_m = gate_distance_m
         self.confirm_hits = confirm_hits

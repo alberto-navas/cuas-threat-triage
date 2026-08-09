@@ -36,10 +36,15 @@ threats:
   - track_id: T-002
     archetype: isr_loiter
     spawn_time_s: 0
-    start_position: { east_m: 1500, north_m: 0, up_m: 150 }
+    # Radio deliberadamente moderado (no varios km): con un radio muy ancho
+    # el ritmo de giro (velocidad / radio) se vuelve tan bajo que una orbita
+    # observada en una ventana corta es indistinguible de una linea recta
+    # para la clasificacion por firma cinematica (ver umbrales en
+    # src/classification/kinematic_signature.py).
+    start_position: { east_m: 400, north_m: 0, up_m: 150 }
     target_asset_id: helipuerto_norte
     speed_mps: 12
-    loiter_radius_m: 1500
+    loiter_radius_m: 400
 
   - track_id: T-003
     archetype: commercial_wander

@@ -63,7 +63,10 @@ threats:
   - track_id: T-104
     archetype: isr_loiter
     spawn_time_s: 0
-    start_position: { east_m: -1800, north_m: 3000, up_m: 180 }
+    # Radio moderado a proposito, ver comentario equivalente en
+    # demo_mixed_threats.yaml sobre por que una orbita muy ancha no es
+    # distinguible de una linea recta para la clasificacion cinematica.
+    start_position: { east_m: -450, north_m: 3000, up_m: 180 }
     target_asset_id: deposito_norte
     speed_mps: 14
-    loiter_radius_m: 1800
+    loiter_radius_m: 450
