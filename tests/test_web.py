@@ -111,6 +111,37 @@ def test_run_with_oversized_upload_returns_413():
     assert response.status_code == 413
 
 
+def test_run_with_lang_translates_the_report():
+    response = client.post("/run", data={"demo_scenario": "demo_mixed_threats.yaml", "lang": "en"})
+
+    assert response.status_code == 200
+    assert 'lang="en"' in response.text
+    assert "Threat report" in response.text
+
+
+def test_run_with_unsupported_lang_falls_back_to_spanish():
+    """`lang` llega de un <input type="hidden"> controlado por el JS de
+    form.html, pero nada impide que alguien lo mande a mano con un valor
+    fuera de es/en/de. normalize_lang() debe caer a "es" en vez de romper
+    la peticion."""
+    response = client.post("/run", data={"demo_scenario": "demo_mixed_threats.yaml", "lang": "fr"})
+
+    assert response.status_code == 200
+    assert 'lang="es"' in response.text
+
+
+def test_form_has_language_switcher_with_all_three_languages():
+    response = client.get("/")
+    html = response.text
+
+    for lang in ("es", "en", "de"):
+        assert f'data-lang="{lang}"' in html
+
+    assert "Generar informe" in html  # es
+    assert "Generate report" in html  # en
+    assert "Bericht erstellen" in html  # de
+
+
 def test_run_is_rate_limited_per_ip():
     limiter.reset()
     try:

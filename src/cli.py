@@ -18,11 +18,14 @@ from typing import Any
 from src.model import TrackStatus
 from src.pipeline import PipelineResult, run_scenario
 from src.report.generator import save_report
+from src.report.i18n import SUPPORTED_LANGUAGES
 from src.simulation.scenario import load_scenario
 from src.tracking.tracker import MultiTargetTracker
 
 
-def _run_and_report(scenario_path: Path, output_path: Path, tracker_kwargs: dict[str, Any]) -> PipelineResult:
+def _run_and_report(
+    scenario_path: Path, output_path: Path, tracker_kwargs: dict[str, Any], lang: str
+) -> PipelineResult:
     """Procesa un unico escenario de principio a fin. Construye un
     `MultiTargetTracker` nuevo por cada llamada -- es un objeto con
     estado (acumula trazas en cada `run()`), asi que compartir una misma
@@ -44,7 +47,7 @@ def _run_and_report(scenario_path: Path, output_path: Path, tracker_kwargs: dict
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    save_report(result, output_path)
+    save_report(result, output_path, lang=lang)
     print(f"  Informe en {output_path}")
     return result
 
@@ -88,6 +91,12 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Fallos consecutivos para descartar una traza (por defecto 3).",
     )
+    parser.add_argument(
+        "--lang",
+        choices=list(SUPPORTED_LANGUAGES),
+        default="es",
+        help="Idioma del informe HTML generado (por defecto: es).",
+    )
     args = parser.parse_args(argv)
 
     for scenario_path in args.scenarios:
@@ -105,12 +114,12 @@ def main(argv: list[str] | None = None) -> int:
     if len(args.scenarios) == 1:
         scenario_path = args.scenarios[0]
         output_path = args.output or (Path("output") / f"{scenario_path.stem}.html")
-        _run_and_report(scenario_path, output_path, tracker_kwargs)
+        _run_and_report(scenario_path, output_path, tracker_kwargs, args.lang)
     else:
         output_dir = args.output or Path("output")
         for scenario_path in args.scenarios:
             output_path = output_dir / f"{scenario_path.stem}.html"
-            _run_and_report(scenario_path, output_path, tracker_kwargs)
+            _run_and_report(scenario_path, output_path, tracker_kwargs, args.lang)
 
     print("Listo.")
     return 0

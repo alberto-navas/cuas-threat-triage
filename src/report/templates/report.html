@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ lang }}">
 <head>
 <meta charset="UTF-8">
-<title>Informe de amenazas — {{ scenario.name }}</title>
+<title>{{ ui.report_title }} — {{ scenario.name }}</title>
 <style>
   :root {
     --bg: #eef1f5; --surface: #ffffff; --surface-alt: #f4f6f9;
@@ -76,52 +76,53 @@
 <header>
   <h1>{{ scenario.name }}</h1>
   <p class="meta">
-    Generado {{ generated_at }} ·
-    Duración simulada <code>{{ scenario.duration_s | int }} s</code> ·
-    Paso <code>{{ scenario.timestep_s }} s</code> ·
-    {{ scenario.assets | length }} activo(s) protegido(s) ·
-    {{ priority | length }} traza(s) activa(s) evaluada(s)
+    {{ ui.generated_prefix }} {{ generated_at }} ·
+    {{ ui.duration_label }} <code>{{ scenario.duration_s | int }} s</code> ·
+    {{ ui.step_label }} <code>{{ scenario.timestep_s }} s</code> ·
+    {{ scenario.assets | length }} {{ ui.assets_suffix }} ·
+    {{ entries | length }} {{ ui.tracks_suffix }}
   </p>
   {% if scenario.description %}<p class="description">{{ scenario.description }}</p>{% endif %}
 </header>
 
-<h2>Mapa táctico</h2>
+<h2>{{ ui.map_heading }}</h2>
 <div class="map-container">
 {{ map_html | safe }}
 </div>
 
-<h2>Prioridad de respuesta</h2>
+<h2>{{ ui.priority_heading }}</h2>
 <table>
   <thead>
     <tr>
-      <th>#</th><th>Traza</th><th>Activo amenazado</th><th>Puntuación</th><th>Nivel</th>
+      <th>{{ ui.th_rank }}</th><th>{{ ui.th_track }}</th><th>{{ ui.th_asset }}</th>
+      <th>{{ ui.th_score }}</th><th>{{ ui.th_tier }}</th>
     </tr>
   </thead>
   <tbody>
-    {% for entry in priority %}
+    {% for entry in entries %}
     <tr>
       <td class="rank">{{ entry.rank }}</td>
-      <td><code>{{ entry.score.track_id }}</code></td>
-      <td>{{ entry.score.asset_id }}</td>
-      <td class="score">{{ "%.1f" | format(entry.score.total) }}/100</td>
-      <td><span class="tag tag-{{ entry.score.tier.value }}">{{ entry.score.tier.value }}</span></td>
+      <td><code>{{ entry.track_id }}</code></td>
+      <td>{{ entry.asset_id }}</td>
+      <td class="score">{{ "%.1f" | format(entry.total) }}/100</td>
+      <td><span class="tag tag-{{ entry.tier }}">{{ tier_labels[entry.tier] }}</span></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
-<h2>Desglose por traza</h2>
-{% for entry in priority %}
+<h2>{{ ui.breakdown_heading }}</h2>
+{% for entry in entries %}
 <div class="detail-card">
   <h3>
-    #{{ entry.rank }} — <code>{{ entry.score.track_id }}</code> → {{ entry.score.asset_id }}
-    <span class="tag tag-{{ entry.score.tier.value }}">{{ entry.score.tier.value }}</span>
-    <span class="score">{{ "%.1f" | format(entry.score.total) }}/100</span>
+    #{{ entry.rank }} — <code>{{ entry.track_id }}</code> → {{ entry.asset_id }}
+    <span class="tag tag-{{ entry.tier }}">{{ tier_labels[entry.tier] }}</span>
+    <span class="score">{{ "%.1f" | format(entry.total) }}/100</span>
   </h3>
   <ul class="components">
-    {% for component in entry.score.components %}
+    {% for component in entry.components %}
     <li>
-      <span class="component-name">{{ component.name }}</span>
+      <span class="component-name">{{ component.name_label }}</span>
       <span class="component-value">{{ "%.0f" | format(component.value) }}/100</span>
       <span class="component-rationale">{{ component.rationale }}</span>
     </li>
@@ -131,10 +132,8 @@
 {% endfor %}
 
 <footer>
-  Datos sintéticos generados por simulación — ningún dato procede de sensores reales.
-  Esta es la capa de detección → seguimiento → clasificación → decisión: una herramienta
-  de apoyo a la decisión, no de neutralización. Ver el README del proyecto para el alcance
-  completo y sus límites éticos.
+  {{ ui.footer_line1 }}
+  {{ ui.footer_line2 }}
 </footer>
 
 </div>

@@ -88,6 +88,8 @@ def score_kinematics(track: Track, asset: ProtectedAsset) -> ScoreComponent:
                 f"Sin movimiento relativo significativo respecto a '{asset.asset_id}' "
                 f"(a {dcpa_m:.0f} m): no hay dinamica de aproximacion que evaluar."
             ),
+            message_key="kinematics_no_relative_motion",
+            message_params={"asset_id": asset.asset_id, "distance": dcpa_m},
         )
     if tcpa_s <= 0.0:
         return ScoreComponent(
@@ -96,6 +98,8 @@ def score_kinematics(track: Track, asset: ProtectedAsset) -> ScoreComponent:
             rationale=(
                 f"Alejandose de '{asset.asset_id}': el punto de maxima aproximacion ya paso (hace {-tcpa_s:.0f} s)."
             ),
+            message_key="kinematics_receding",
+            message_params={"asset_id": asset.asset_id, "elapsed": -tcpa_s},
         )
 
     urgency_tcpa = _urgency_from_tcpa(tcpa_s)
@@ -109,4 +113,12 @@ def score_kinematics(track: Track, asset: ProtectedAsset) -> ScoreComponent:
             f"TCPA {tcpa_s:.0f} s, DCPA {dcpa_m:.0f} m respecto a '{asset.asset_id}' "
             f"(urgencia por tiempo {urgency_tcpa:.0f}/100, por distancia {urgency_dcpa:.0f}/100)."
         ),
+        message_key="kinematics_approach",
+        message_params={
+            "asset_id": asset.asset_id,
+            "tcpa": tcpa_s,
+            "dcpa": dcpa_m,
+            "urgency_tcpa": urgency_tcpa,
+            "urgency_dcpa": urgency_dcpa,
+        },
     )

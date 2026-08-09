@@ -57,6 +57,7 @@ def score_behavior(track: Track, asset: ProtectedAsset) -> ScoreComponent:
             name="comportamiento",
             value=0.0,
             rationale="Sin velocidad significativa reciente: no hay rumbo del que evaluar la alineacion con el activo.",
+            message_key="behavior_no_speed",
         )
 
     misalignments_deg = [
@@ -73,4 +74,10 @@ def score_behavior(track: Track, asset: ProtectedAsset) -> ScoreComponent:
             f"'{asset.asset_id}' en los ultimos {len(recent)} puntos "
             "(0 grados = apuntando directamente, 180 = alejandose en linea recta)."
         ),
+        message_key="behavior_alignment",
+        message_params={
+            "asset_id": asset.asset_id,
+            "mean_misalignment": mean_misalignment_deg,
+            "num_points": len(recent),
+        },
     )

@@ -26,6 +26,7 @@ from slowapi.util import get_remote_address
 
 from src.pipeline import run_scenario
 from src.report.generator import generate_report_html
+from src.report.i18n import normalize_lang
 from src.simulation.scenario import Scenario, parse_scenario_yaml
 
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
@@ -103,6 +104,7 @@ async def run(
     request: Request,  # requerido por @limiter.limit para identificar al cliente (IP), no se usa directamente aqui
     demo_scenario: str = Form(""),
     scenario_file: UploadFile | None = File(None),  # noqa: B008 — patron estandar de FastAPI, no una llamada real en cada request
+    lang: str = Form("es"),
 ) -> HTMLResponse:
     has_upload = scenario_file is not None and bool(scenario_file.filename)
     if bool(demo_scenario) == has_upload:
@@ -122,5 +124,10 @@ async def run(
     scenario_text = _load_scenario_text(demo_scenario, uploaded_bytes)
     scenario = _parse_scenario(scenario_text)
 
+    # normalize_lang() cae a "es" ante cualquier valor que no sea uno de los
+    # 3 idiomas soportados, en vez de fallar: el campo llega de un <input
+    # type="hidden"> controlado por el propio JS de form.html, pero no hay
+    # razon para que un valor inesperado (o manipulado a mano) rompa la
+    # peticion en vez de simplemente usar el idioma por defecto.
     result = run_scenario(scenario)
-    return HTMLResponse(generate_report_html(result))
+    return HTMLResponse(generate_report_html(result, lang=normalize_lang(lang)))

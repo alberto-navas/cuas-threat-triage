@@ -75,3 +75,19 @@ def test_default_output_dir_for_multiple_scenarios(tmp_path, monkeypatch):
     assert exit_code == 0
     assert (tmp_path / "output" / "demo_mixed_threats.html").exists()
     assert (tmp_path / "output" / "demo_swarm_multi_asset.html").exists()
+
+
+def test_lang_flag_translates_the_report(tmp_path):
+    output_path = tmp_path / "report_de.html"
+
+    exit_code = main([str(_MIXED_THREATS), "--output", str(output_path), "--lang", "de"])
+
+    assert exit_code == 0
+    html = output_path.read_text(encoding="utf-8")
+    assert 'lang="de"' in html
+    assert "Bedrohungsbericht" in html
+
+
+def test_lang_flag_rejects_unsupported_language():
+    with pytest.raises(SystemExit):
+        main([str(_MIXED_THREATS), "--lang", "fr"])

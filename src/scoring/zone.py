@@ -52,6 +52,13 @@ def score_zone(track: Track, asset: ProtectedAsset) -> ScoreComponent:
                 rationale=(
                     f"A {distance:.0f} m de '{asset.asset_id}', dentro del anillo '{ring_name}' (radio {radius:.0f} m)."
                 ),
+                message_key="zone_inside_ring",
+                message_params={
+                    "asset_id": asset.asset_id,
+                    "distance": distance,
+                    "ring_name": ring_name,
+                    "radius": radius,
+                },
             )
 
     outer_name, outer_radius = rings[-1]
@@ -62,4 +69,11 @@ def score_zone(track: Track, asset: ProtectedAsset) -> ScoreComponent:
             f"A {distance:.0f} m de '{asset.asset_id}', fuera de todos los anillos de proximidad "
             f"(el mas amplio, '{outer_name}', tiene {outer_radius:.0f} m de radio)."
         ),
+        message_key="zone_outside_all_rings",
+        message_params={
+            "asset_id": asset.asset_id,
+            "distance": distance,
+            "outer_name": outer_name,
+            "outer_radius": outer_radius,
+        },
     )

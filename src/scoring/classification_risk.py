@@ -39,4 +39,11 @@ def score_classification_risk(classification: Classification) -> ScoreComponent:
             f"ponderado hacia el valor neutro ({_NEUTRAL_RISK:.0f}/100) en proporcion "
             "a la incertidumbre de la clasificacion."
         ),
+        message_key="classification_risk",
+        message_params={
+            "drone_class": classification.drone_class.value,
+            "confidence": classification.confidence,
+            "base_risk": base_risk,
+            "neutral": _NEUTRAL_RISK,
+        },
     )

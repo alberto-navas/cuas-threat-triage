@@ -180,11 +180,21 @@ class ScoreComponent:
     """Sub-puntuacion de un aspecto concreto de la amenaza (cinematica,
     zona, clasificacion, comportamiento), con su propia justificacion. Es
     lo que hace que el score final sea auditable componente a componente
-    en vez de un unico numero sin explicacion."""
+    en vez de un unico numero sin explicacion.
+
+    `rationale` es siempre el texto en español, el idioma en el que se
+    razona internamente. `message_key` + `message_params` son opcionales:
+    cuando estan presentes, permiten volver a renderizar el mismo
+    razonamiento en otro idioma en el momento de generar el informe (ver
+    src/report/i18n.py) sin tener que tocar el modulo que produjo el
+    componente. Si `message_key` es None, `rationale` es el unico texto
+    disponible en cualquier idioma."""
 
     name: str
     value: float  # 0.0-100.0
     rationale: str
+    message_key: str | None = None
+    message_params: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.value <= 100.0:

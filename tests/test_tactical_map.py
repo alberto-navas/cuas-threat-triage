@@ -58,3 +58,36 @@ def test_map_html_skips_tracks_without_history(position_factory):
     html = build_tactical_map_html(list(result.scenario.assets), [*result.tracks, empty_track], result.priority)
 
     assert "TRK-EMPTY" not in html
+
+
+def test_map_html_axis_labels_are_translated():
+    scenario = load_scenario(_DEMO_SCENARIOS_DIR / "demo_mixed_threats.yaml")
+    result = run_scenario(scenario)
+
+    es_html = build_tactical_map_html(list(result.scenario.assets), result.tracks, result.priority, lang="es")
+    en_html = build_tactical_map_html(list(result.scenario.assets), result.tracks, result.priority, lang="en")
+    de_html = build_tactical_map_html(list(result.scenario.assets), result.tracks, result.priority, lang="de")
+
+    assert "Norte (m)" in es_html
+    assert "North (m)" in en_html
+    assert "Norden (m)" in de_html
+
+
+def test_map_html_unscored_ghost_track_label_is_translated(position_factory, track_state_factory):
+    scenario = load_scenario(_DEMO_SCENARIOS_DIR / "demo_mixed_threats.yaml")
+    result = run_scenario(scenario)
+
+    # TENTATIVE (no DROPPED, para no caer en el filtro de trazas fantasma)
+    # pero ausente de result.priority, para forzar la rama "sin puntuar" en
+    # vez de un nivel de amenaza real.
+    unscored = Track(
+        track_id="TRK-UNSCORED",
+        status=TrackStatus.TENTATIVE,
+        history=[track_state_factory(position=position_factory())],
+    )
+
+    en_html = build_tactical_map_html(
+        list(result.scenario.assets), [*result.tracks, unscored], result.priority, lang="en"
+    )
+
+    assert "TRK-UNSCORED (UNSCORED)" in en_html

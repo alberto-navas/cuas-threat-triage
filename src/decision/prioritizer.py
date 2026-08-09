@@ -76,6 +76,8 @@ def _score_asset_criticality(asset: ProtectedAsset) -> ScoreComponent:
         name="criticidad_activo",
         value=value,
         rationale=f"Activo '{asset.asset_id}' con criticidad declarada {asset.criticality}/5.",
+        message_key="asset_criticality",
+        message_params={"asset_id": asset.asset_id, "criticality": asset.criticality},
     )
 
 

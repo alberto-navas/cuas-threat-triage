@@ -33,8 +33,14 @@
   body { margin: 0; padding: 2.5rem 1.25rem; background: var(--bg); color: var(--ink); font-family: var(--font-sans); }
   .page { max-width: 640px; margin: 0 auto; }
 
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
   h1 { margin: 0 0 0.35rem 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; }
   .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0 0 2rem 0; max-width: 60ch; }
+
+  .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+  .lang-btn { background: var(--surface); color: var(--muted); border: none; padding: 0.35rem 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; cursor: pointer; letter-spacing: 0.02em; }
+  .lang-btn + .lang-btn { border-left: 1px solid var(--border); }
+  .lang-btn[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
 
   form { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
   fieldset { border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.1rem; margin: 0 0 1.25rem 0; }
@@ -55,21 +61,35 @@
   button:hover { opacity: 0.9; }
 
   footer { margin-top: 2rem; color: var(--muted); font-size: 0.8rem; max-width: 60ch; }
+
+  @media (prefers-reduced-motion: no-preference) { .lang-btn { transition: filter 0.1s ease, background-color 0.1s ease, color 0.1s ease; } }
 </style>
 </head>
 <body>
 <div class="page">
 
-<h1>C-UAS Threat Triage</h1>
-<p class="subtitle">
+<div class="top-bar">
+  <div>
+    <h1>C-UAS Threat Triage</h1>
+  </div>
+  <div class="lang-switch" role="group" aria-label="Idioma / Language / Sprache">
+    <button type="button" class="lang-btn" data-lang="es" aria-pressed="true">ES</button>
+    <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+    <button type="button" class="lang-btn" data-lang="de" aria-pressed="false">DE</button>
+  </div>
+</div>
+
+<p class="subtitle" data-i18n="subtitle">
   Simula un escenario de detección antidrones y genera el informe de
   priorización de amenazas: seguimiento, clasificación por firma
   cinemática y puntuación explicable por traza.
 </p>
 
-<form action="/run" method="post" enctype="multipart/form-data">
+<form id="scenario-form" action="/run" method="post" enctype="multipart/form-data">
+  <input type="hidden" id="lang-field" name="lang" value="es">
+
   <fieldset>
-    <legend>Escenario de demostración</legend>
+    <legend data-i18n="legend_demo">Escenario de demostración</legend>
     {% for scenario in demo_scenarios %}
     <div class="option">
       <input type="radio" name="demo_scenario" value="{{ scenario.filename }}" id="demo-{{ loop.index }}"
@@ -82,22 +102,84 @@
     {% endfor %}
   </fieldset>
 
-  <p class="separator">— o sube tu propio escenario —</p>
+  <p class="separator" data-i18n="separator">— o sube tu propio escenario —</p>
 
   <fieldset>
-    <legend>Escenario YAML propio</legend>
+    <legend data-i18n="legend_custom">Escenario YAML propio</legend>
     <input type="file" name="scenario_file" accept=".yaml,.yml">
   </fieldset>
 
-  <button type="submit">Generar informe</button>
+  <button type="submit" data-i18n="submit_btn">Generar informe</button>
 </form>
 
-<footer>
+<footer data-i18n="footer_text">
   Todos los escenarios son simulaciones sintéticas: ningún dato procede de
   sensores reales, y esto es un replay, no una conexión en vivo a hardware.
   Ver el README del proyecto para el alcance completo y sus límites éticos.
 </footer>
 
 </div>
+
+<script>
+  // --- Traducciones -------------------------------------------------
+  // Los nombres/descripciones de los escenarios de demo son texto del
+  // propio escenario (definido en su YAML, en data/scenarios/), no texto
+  // de la interfaz: se quedan en el idioma en que se escribieron, igual
+  // en las 3 traducciones (ver src/report/i18n.py para el mismo criterio
+  // aplicado al informe generado).
+  var translations = {
+    es: {
+      subtitle: "Simula un escenario de detección antidrones y genera el informe de priorización de amenazas: seguimiento, clasificación por firma cinemática y puntuación explicable por traza.",
+      legend_demo: "Escenario de demostración",
+      separator: "— o sube tu propio escenario —",
+      legend_custom: "Escenario YAML propio",
+      submit_btn: "Generar informe",
+      footer_text: "Todos los escenarios son simulaciones sintéticas: ningún dato procede de sensores reales, y esto es un replay, no una conexión en vivo a hardware. Ver el README del proyecto para el alcance completo y sus límites éticos.",
+    },
+    en: {
+      subtitle: "Simulate a counter-drone detection scenario and generate the threat-priority report: tracking, kinematic-signature classification, and an explainable score per track.",
+      legend_demo: "Demo scenario",
+      separator: "— or upload your own scenario —",
+      legend_custom: "Custom scenario YAML",
+      submit_btn: "Generate report",
+      footer_text: "Every scenario is a synthetic simulation: no data comes from real sensors, and this is a replay, not a live connection to hardware. See the project README for the full scope and its ethical limits.",
+    },
+    de: {
+      subtitle: "Simuliere ein Anti-Drohnen-Erkennungsszenario und erstelle den Bedrohungsprioritätsbericht: Verfolgung, Klassifizierung nach kinematischer Signatur und ein erklärbarer Score pro Track.",
+      legend_demo: "Demo-Szenario",
+      separator: "— oder eigenes Szenario hochladen —",
+      legend_custom: "Eigenes Szenario-YAML",
+      submit_btn: "Bericht erstellen",
+      footer_text: "Alle Szenarien sind synthetische Simulationen: Es stammen keine Daten von echten Sensoren, und dies ist eine Wiedergabe, keine Live-Verbindung zu Hardware. Der vollständige Umfang und seine ethischen Grenzen stehen im README des Projekts.",
+    }
+  };
+
+  function applyLanguage(lang) {
+    var dict = translations[lang] || translations.es;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', btn.getAttribute('data-lang') === lang ? 'true' : 'false');
+    });
+
+    var langField = document.getElementById('lang-field');
+    if (langField) langField.value = lang;
+
+    try { localStorage.setItem('cuas-triage-lang', lang); } catch (e) { /* almacenamiento no disponible: no es critico, simplemente no se recuerda la eleccion */ }
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () { applyLanguage(btn.getAttribute('data-lang')); });
+  });
+
+  var savedLang = 'es';
+  try { savedLang = localStorage.getItem('cuas-triage-lang') || 'es'; } catch (e) { /* ver comentario arriba */ }
+  applyLanguage(savedLang);
+</script>
 </body>
 </html>
